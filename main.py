@@ -4,71 +4,73 @@ import keyboard
 
 app = Tk()
 app.geometry("500x500")
+welcome_label = Label(app, text="Welcome to Typing Speed Test", font=("Arial", 25))
+welcome_label.place(x=25,y=20)
 
 text = ("A fitness studio was struggling to attract new members. "
-        "The owner, Maria, decided to launch a 30-day fitness challenge "
-        "with a $500 cash prize for the most improved participant. "
+        "The owner, Maria, decided to launch a 30-day fitness challenge with a $500 cash prize for the most improved participant. "
         "The challenge went viral on social media, generating 500 new leads within the first week. "
-        "By the end of the month, the studio had gained 150 new members, a 20% increase in revenue, "
-        "and a revitalized community of fitness enthusiasts.")
+        "By the end of the month, the studio had gained 150 new members, "
+        "a 20% increase in revenue, and a revitalized community of fitness enthusiasts.").replace(".","").strip().split()
+frame = Frame(app,width=450, height=350, borderwidth=2, relief="solid")
+frame.place(x=100, y=75)
 
-text_list = [word for word in text.split()][:3]
-y_pos = [0,50,100,150,200,250,300,350,400,450]
-x_pos = [0,50,100,150,200,250,300,350,400,450]
-starting_x = 0
-starting_y = 0
+count = 0
+row  = 0
 label_list = []
+for text_item in text:
+    count +=1
+    label = Label(frame, text=text_item, font=("Arial", 8))
 
-user_entry = StringVar()
-for word in text_list:
-
-    x = starting_x + (text_list.index(word) *50)
-    y = y_pos[0]
-    # y = starting_y + (text_list.index(word) * 20)
-    if x >= 450:
-        x = 0
-        y = y_pos[+1]
-    label = Label(app, text=word, borderwidth=2, relief="solid")
-    label.place(x=x,y=y )
+    if count != 5:
+        label.grid(column=count, row=row)
+    else:
+        row += 1
+        count = 0
+        label.grid(column=count, row=row)
     label_list.append(label)
 
+user_var = StringVar()
+
+entry = Entry(app, width=45, textvariable=user_var, font=("Arial", 8))
+entry.place(x=100, y=350)
 
 
-label = Label(app, text="Start speed test",font=('calibre',25,'normal'))
-label.place(x=100,y=200)
+text_label_list = [label["text"] for label in label_list]
 
-entry = Entry(app, textvariable=user_entry)
-entry.place(x=200,y=200)
+print(text_label_list)
 
-def get_text(event):
-    entry = user_entry.get().split()
-    print(entry)
-    # for label in label_list:
-    #     print(label["text"], entry[label_list.index(label)])
-    #     try:
-    #         if label["text"] == entry[label_list.index(label)]:
-    #             label.configure(background="green")
-    #         else:
-    #             label.configure(background="green")
-    #
-    #     except IndexError:
-    #         pass
-def speed_test():
+def speed_test(event):
+    user_input = user_var.get().strip()
+    print(user_input)
+    try:
+        id = text_label_list.index(user_input)
+        print(id)
+        label_list[id].configure(background="green")
 
-    if keyboard.is_pressed("space"):
-        get_text()
-    # for label in label_list:
+    except ValueError:
+        for item in label_list[::-1]:
+            print(item["background"])
+            if item["background"] != "":
+                id = label_list.index(item)
+                print(id+1)
+                label_list[id + 1].configure(background="red")
+                break
+            else:
+                label_list[0].configure(background="red")
 
 
+    entry.delete(0, END)
 
-start_button = Button(app, text="Start", command=speed_test)
-start_button.place(x=220,y=300)
 
-submit_button = Button(app, text="Submit", command=get_text)
+start_button = Button(app, text="Start")
+start_button.place(x=220,y=380)
+
+submit_button = Button(app, text="Submit")
 submit_button.place(x=220,y=400)
 
 # user_input_label = Label(app, text=user_entry.get(), font=('calibre', 25, 'normal'))
 # user_input_label.place(x=220, y=500)
 
-app.bind('<BackSpace>', get_text)
+app.bind('<space>', speed_test)
 app.mainloop()
