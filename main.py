@@ -109,17 +109,23 @@ def new_dialog(content,level):
 
 
         def speed_test(event):
-            global correct_count, wrong_count, character_count
+            global correct_count, wrong_count, character_count, count, row
             user_input = user_var.get().strip()
             if user_input in text:
                 for item in label_list:
+                    count += 1
+                    if count == 5:
+                        row += 1
+                        count = 0
+                    print(row)
+                    if row >=11 and count ==5:
+                        inside_canvas.yview_moveto(0.5)
+
                     if item["background"] == "" and user_input == item["text"]:
                         item.configure(background="green")
                         print(item.place_info())
 
                         break
-                            # if item.place_info()["Y"] >= 5:
-                            #     inside_canvas.yview_moveto(0.2)
                 correct_words.append(user_input)
                 correct_count += 1
                 character_count += len(label["text"])
