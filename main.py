@@ -73,7 +73,7 @@ def new_dialog(content,level):
         vscrollbar.place(x=60, y=120)
         window.configure(background="#FE8D6F")
         inside_canvas = Canvas(window, width=305, height=200,bd=0, highlightthickness=0,
-                           yscrollcommand=vscrollbar.set)
+                           yscrollcommand=vscrollbar.set, scrollregion=(0,0,500,500))
 
         inside_canvas.place(x=100, y=75)
         # inside_canvas.config(scrollregion=inside_canvas.bbox("all"))
@@ -107,41 +107,38 @@ def new_dialog(content,level):
 
         text_label_list = [label["text"] for label in label_list]
 
-
         def speed_test(event):
-            global correct_count, wrong_count, character_count, count, row
-            user_input = user_var.get().strip()
-            if user_input in text:
-                for item in label_list:
-                    count += 1
-                    if count == 5:
-                        row += 1
-                        count = 0
-                    print(row)
-                    if row >=11 and count ==5:
-                        inside_canvas.yview_moveto(0.5)
+                global correct_count, wrong_count, character_count, count, row, label_list
+                user_input = user_var.get().strip()
+                if user_input in text:
+                        for item in label_list:
+                                if item.grid_info()["row"]  == 7 :
+                                        inside_canvas.yview_moveto(0.2)
+                                if item["background"] == "" and user_input == item["text"]:
+                                        item.configure(background="green")
+                                        print(item.grid_info())
+                                        break
 
-                    if item["background"] == "" and user_input == item["text"]:
-                        item.configure(background="green")
-                        print(item.place_info())
 
-                        break
-                correct_words.append(user_input)
-                correct_count += 1
-                character_count += len(label["text"])
-            else:
-                for item in label_list[::-1]:
-                    if item["background"] != "":
-                        id = label_list.index(item)
-                        label_list[id + 1].configure(background="red")
-                        break
-                if label_list[0]["background"] == "":
-                    label_list[0].configure(background="red")
-                wrong_count += 1
-            try:
-                entry.delete(0, END)
-            except TclError:
-                print(correct_words, wrong_count)
+                        correct_words.append(user_input)
+                        correct_count += 1
+                        character_count += len(label["text"])
+                else:
+                        for item in label_list[::-1]:
+                                if item["background"] != "":
+                                        id = label_list.index(item)
+                                        label_list[id + 1].configure(background="red")
+                                        if label_list[id + 1].grid_info()["row"]  == 7 :
+                                            inside_canvas.yview_moveto(0.2)
+                                        break
+
+                        if label_list[0]["background"] == "":
+                                label_list[0].configure(background="red")
+                        wrong_count += 1
+                try:
+                        entry.delete(0, END)
+                except TclError:
+                        print(correct_words, wrong_count)
 
         def check():
             global time_value
