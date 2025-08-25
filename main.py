@@ -12,7 +12,7 @@ text = ("A fitness studio was struggling to attract new members. "
         "The owner, Maria, decided to launch a 30-day fitness challenge with a $500 cash prize for the most improved participant. "
         "The challenge went viral on social media, generating 500 new leads within the first week. "
         "By the end of the month, the studio had gained 150 new members, "
-        "a 20% increase in revenue, and a revitalized community of fitness enthusiasts.").replace(".","").lower().strip().split()
+        "a 20% increase in revenue, and a revitalized community of fitness enthusiasts.").replace(".","").replace(",","").lower().strip().split()
 frame = Frame(app,width=450, height=350, borderwidth=2, relief="solid")
 frame.place(x=100, y=75)
 
@@ -49,22 +49,26 @@ text_label_list = [label["text"] for label in label_list]
 def speed_test(event):
     global correct_count, wrong_count, character_count
     user_input = user_var.get().strip()
-    try:
-        id = text_label_list.index(user_input)
-        label_list[id].configure(background="green")
-
+    if user_input in text:
+        for item in label_list:
+            if item["background"] == "" and user_input == item["text"]:
+                item.configure(background="green")
+                break
+            # elif user_input != item["text"]:
+        # id = text_label_list.index(user_input)
+        # label_list[id].configure(background="green")
+        #
         correct_words.append(user_input)
         correct_count += 1
         character_count += len(label["text"])
-
-    except ValueError:
+    else:
         for item in label_list[::-1]:
             if item["background"] != "":
                 id = label_list.index(item)
                 label_list[id + 1].configure(background="red")
                 break
-            else:
-                label_list[0].configure(background="red")
+        if label_list[0]["background"] == "":
+            label_list[0].configure(background="red")
         wrong_count += 1
     try:
         entry.delete(0, END)
@@ -90,18 +94,26 @@ def counter():
         time_label.configure(text=f"00:{time_value}")
 
         app.after(1000,counter)
-    if time_value < 10:
+    if time_value < 10 and time_value != 0:
         time_label.configure(text=f"00:0{time_value}")
     if time_value == 0:
+        time_label.configure(text=f"00:00")
+
         entry.destroy()
         check()
 
+def reset():
+    for label in label_list:
+        label.configure(background="")
+    wpm_label.configure(text="WPM:", font=("Arial", 15))
+    time_label.configure(text="00:00")
+    cpm_label.configure(text="CPM:", font=("Arial", 15))
 
 start_button = Button(app, text="Start", command=counter)
 start_button.place(x=220,y=380)
 
-submit_button = Button(app, text="Submit")
-submit_button.place(x=220,y=400)
+reset_button = Button(app, text="reset", command=reset)
+reset_button.place(x=220,y=400)
 
 wpm_label = Label(app, text="WPM:", font=("Arial", 12))
 cpm_label = Label(app, text="CPM:", font=("Arial", 12))
