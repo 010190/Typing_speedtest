@@ -1,13 +1,19 @@
 import time
 from tkinter import *
+from tkinter import ttk
 from tkinter.ttk import *
 import keyboard
 from PIL import Image, ImageTk
+from PIL.ImageOps import expand
 
 app = Tk()
 app.geometry("500x500")
 app.title("Typing Speedtest")
 
+style = ttk.Style()
+style.configure('W.TButton', font =
+               ('calibri', 10, 'bold', 'underline'),
+                foreground = '#FE653C')
 normal_text = ("A fitness studio was struggling to attract new members. "
         "The owner, Maria, decided to launch a 30-day fitness challenge with a $500 cash prize for the most improved participant. "
         "The challenge went viral on social media, generating 500 new leads within the first week. "
@@ -29,7 +35,7 @@ hard_text = ("Teamwork is not only about achieving goals; it's also about the jo
 count = 0
 row  = 0
 label_list = []
-time_value = 30
+time_value = 90
 correct_words = []
 correct_count = 0
 wrong_count = 0
@@ -48,26 +54,39 @@ welcome_label.place(x=8,y=20)
 choose_label = Label(app, text="Choose a level:", font=("Arial", 20, "bold"),background="#FE8D6F", foreground="white")
 choose_label.place(x=160,y=75)
 
-easy_button = Button(app, text="Easy", command=lambda:new_dialog(easy_text, "easy"))
+easy_button = Button(app, text="Easy", command=lambda:new_dialog(easy_text, "easy"),style = 'W.TButton')
 easy_button.place(x=225,y=120)
 
-normal_button = Button(app, text="Normal", command=lambda:new_dialog(normal_text, "normal"))
+normal_button = Button(app, text="Normal", command=lambda:new_dialog(normal_text, "normal"),style = 'W.TButton')
 normal_button.place(x=225,y=150)
 
 
-hard_button = Button(app, text="Hard", command=lambda:new_dialog(hard_text, "hard"))
+hard_button = Button(app, text="Hard", command=lambda:new_dialog(hard_text, "hard"),style = 'W.TButton')
 hard_button.place(x=225,y=180)
 
 def new_dialog(content,level):
+
         global row, count
         window = Toplevel(app)
         window.geometry("500x500")
+        vscrollbar = ttk.Scrollbar(window, orient=VERTICAL)
+        vscrollbar.place(x=60, y=120)
+        window.configure(background="#FE8D6F")
+        inside_canvas = Canvas(window, width=305, height=200,bd=0, highlightthickness=0,
+                           yscrollcommand=vscrollbar.set)
+
+        inside_canvas.place(x=100, y=75)
+        # inside_canvas.config(scrollregion=inside_canvas.bbox("all"))
+        vscrollbar.config(command=inside_canvas.yview)
+
         text = content.replace(".","").replace(",","").lower().strip().split()
         level_label = Label(window, text=f"Typing speed test: level {level}", font=("Arial", 25, 'bold'),
                               background="#FE8D6F", foreground="white")
         level_label.place(x=9, y=20)
-        frame = Frame(window,width=450, height=350, borderwidth=2, relief="solid")
-        frame.place(x=100, y=75)
+        frame = Frame(inside_canvas,width=200, height=200)
+        frame.place(x=100, y=75, relx=0, rely=0)
+        inside_canvas.create_window(0, 0, window=frame, anchor="nw")
+
         for text_item in text:
             count +=1
             label = Label(frame, text=text_item, font=("Arial", 8))
@@ -82,7 +101,7 @@ def new_dialog(content,level):
 
         user_var = StringVar()
 
-        entry = Entry(window, width=45, textvariable=user_var, font=("Arial", 8))
+        entry = Entry(window, width=48, textvariable=user_var, font=("Arial", 8))
         entry.place(x=100, y=350)
 
 
@@ -96,7 +115,11 @@ def new_dialog(content,level):
                 for item in label_list:
                     if item["background"] == "" and user_input == item["text"]:
                         item.configure(background="green")
+                        print(item.place_info())
+
                         break
+                            # if item.place_info()["Y"] >= 5:
+                            #     inside_canvas.yview_moveto(0.2)
                 correct_words.append(user_input)
                 correct_count += 1
                 character_count += len(label["text"])
@@ -122,7 +145,7 @@ def new_dialog(content,level):
             cpm_label.configure(text=f"CPM:{cpm_value}")
 
         time_label = Label(window, text="00:00", font=("Arial", 15))
-        time_label.place(x=400,y=100)
+        time_label.place(x=425,y=100)
 
         def counter():
             global  time_value,counter_id
@@ -154,17 +177,17 @@ def new_dialog(content,level):
             time_label.configure(text="00:00")
             cpm_label.configure(text="CPM:", font=("Arial", 15))
 
-        start_button = Button(window, text="Start", command=counter)
+        start_button = Button(window, text="Start", command=counter,style = 'W.TButton')
         start_button.place(x=220,y=380)
 
-        reset_button = Button(window, text="reset", command=reset)
+        reset_button = Button(window, text="Reset", command=reset,style = 'W.TButton')
         reset_button.place(x=220,y=400)
 
         wpm_label = Label(window, text="WPM:", font=("Arial", 12))
         cpm_label = Label(window, text="CPM:", font=("Arial", 12))
 
 
-        wpm_label.place(x=400,y=125)
-        cpm_label.place(x=400,y=150)
+        wpm_label.place(x=425,y=130)
+        cpm_label.place(x=425,y=160)
 
 app.mainloop()
