@@ -5,6 +5,7 @@ import keyboard
 
 app = Tk()
 app.geometry("500x500")
+app.title("Typing Speedtest")
 welcome_label = Label(app, text="Welcome to Typing Speed Test", font=("Arial", 25))
 welcome_label.place(x=25,y=20)
 
@@ -24,7 +25,7 @@ correct_words = []
 correct_count = 0
 wrong_count = 0
 character_count = 0
-
+counter_id = 0
 for text_item in text:
     count +=1
     label = Label(frame, text=text_item, font=("Arial", 8))
@@ -54,10 +55,6 @@ def speed_test(event):
             if item["background"] == "" and user_input == item["text"]:
                 item.configure(background="green")
                 break
-            # elif user_input != item["text"]:
-        # id = text_label_list.index(user_input)
-        # label_list[id].configure(background="green")
-        #
         correct_words.append(user_input)
         correct_count += 1
         character_count += len(label["text"])
@@ -87,22 +84,29 @@ time_label = Label(app, text="00:00", font=("Arial", 15))
 time_label.place(x=400,y=100)
 
 def counter():
-    global time_value
-
-    time_value -= 1
-    if time_value >= 0:
+    global  time_value,counter_id
+    entry = Entry(app, width=45, textvariable=user_var, font=("Arial", 8))
+    entry.place(x=100, y=350)
+    if time_value > 0:
         time_label.configure(text=f"00:{time_value}")
+        time_value -= 1
+        counter_id = app.after(1000, counter)
 
-        app.after(1000,counter)
     if time_value < 10 and time_value != 0:
+        time_value -= 1
         time_label.configure(text=f"00:0{time_value}")
     if time_value == 0:
         time_label.configure(text=f"00:00")
 
         entry.destroy()
         check()
+    app.bind('<space>', speed_test)
+
 
 def reset():
+    global time_value
+    time_value = 30
+    app.after_cancel(counter_id)
     for label in label_list:
         label.configure(background="")
     wpm_label.configure(text="WPM:", font=("Arial", 15))
@@ -121,5 +125,5 @@ cpm_label = Label(app, text="CPM:", font=("Arial", 12))
 
 wpm_label.place(x=400,y=125)
 cpm_label.place(x=400,y=150)
-app.bind('<space>', speed_test)
+
 app.mainloop()
